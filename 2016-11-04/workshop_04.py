@@ -40,13 +40,29 @@ def checkSurfacesComplanarity(verts, cells):
 				return False
 	return True
 
+def cleanCells(cells, verts):
+	cleaned = []
+	for i in range(len(cells)-1):
+		isBaseCell = True
+		for pointIndex in cells[i]:
+			print "punto" + str(pointIndex)
+			if(verts[pointIndex-1][2] != 0):
+				isBaseCell = False
+		if(not isBaseCell):
+			cleaned.append(cells[i])
+	return cleaned
+
+
 
 verts = [[0,0,0],[0,3,0],[6,3,0],[6,9,0],[9,9,0],[9,0,0],[1.5,1.5,2],[7.5,1.5,2],[7.5,7.5,2]]
 cells = [[1,7,2],[2,7,8,3],[3,8,9,4],[4,9,5],[8,6,5,9],[1,6,8,7],[1,6,3,2],[3,6,5,4]]
+verts = [[0,0,0], [0,10,0],[6,10,0],[6,8,0],[3,8,0],[3,4,0],[6,4,0],[6,0,0],[5,2,2],[1,2,2],[1,9,2],[5,9,2]]
+cells = [[9,8,7],[7,6,10,9],[9,10,1,8],[1,10,11,2],[2,11,12,3],[3,12,4],[4,12,11,5],[5,11,10,6],[8,7,6,1],[1,6,5,2],[2,5,4,3]]
 #verts = [[0,0,0],[6,0,0],[6,-12,0],[3,-12,0],[3,-3,0],[0,-3,0],[1.5,-1.5,3],[4.5,-1.5,3],[4.5,-10.5,3]]
 #cells = [[1,7,6],[2,8,7,1],[2,3,9,8],[4,3,9],[4,9,8,5],[5,8,7,6],[6,5,2,1],[5,4,3,2]]
 tetto = MKPOL([verts,cells, None])
-tetto_sopra = MKPOL([verts,cells[:-2],None])
+cells = cleanCells(cells,verts)
+tetto_sopra = MKPOL([verts,cells,None])
 tetto_sopra = OFFSET([.1,.1,.1])(tetto_sopra)
 tetto_sopra = T([3])([.1])(tetto_sopra)
 tetto_sopra = COLOR(Color4f([1/255., 61/255., 31/255.,1]))(tetto_sopra)
