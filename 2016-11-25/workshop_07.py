@@ -1,10 +1,10 @@
 from pyplasm import *
 
-XWindow = [.2,.8,.05,.8,.2,.8,.05,.8,.2]
-YWindow = [.1,.7,.05,.7,.05,.7,.05,.7,.01]
-
-#XWindow = [.1,.5,.05,.5,.2,.5,.05,.5,.1]
+#XWindow = [.2,.8,.05,.8,.2,.8,.05,.8,.2]
 #YWindow = [.1,.7,.05,.7,.05,.7,.05,.7,.01]
+
+XWindow = [.1,.5,.05,.5,.2,.5,.05,.5,.1]
+YWindow = [.15,.9,.1,.9,.2,.9,.1,1.4,.1]
 occurrencyWindow = [[True]*9,
 					[True,False,True,False,True,False,True,False,True],
 					[True]*9,
@@ -19,7 +19,7 @@ occurrencyWindow = [[True]*9,
 #YDoor = [.1, .2, .02, .2, .02, .2, .3, .2, .02, .2 ,.02, .2, .1]
 #XDoor = [.1, .2, .02, .2, .02, 1, .02, .2, .02, .2, .1]
 
-YDoor = [.1, .2, .02, .2, .02, .2, .3, .2, .02, .2 ,.02, .2, .1]
+YDoor = [.2, .2, .1, .4, .1, .2, .3, .2, .1, .4 ,.1, .2, .2]
 XDoor = [.4, .3, .04, .6, .05, 1.4, .04, .3, .04, .5, .3]
 occurencyDoor = [[True, True, True, True, True, True, True, True, True, True, True, True, True],
 				[True, False, False, False, False, False, True, False, False, False, False, False, True],
@@ -62,8 +62,8 @@ def removeNegativeCells(ukpol):
 """
 resizeXY is a function that given three X,Y,occurrency and two dimensions dx and dz, scale the values
 contained in X and Y, in such a way that, only empty spaces are scaled and filled spaces are mantained fixed.
-@param X: array of distances on X-axis, relative distance calculated on the previuos point
-@param Y: array of distances on Y-axis, relative distance calculated on the previuos point
+@param X: array of distances on X-axis, relative distance calculated on the previous point
+@param Y: array of distances on Y-axis, relative distance calculated on the previous point
 @param occurrency: array of occurrences defining which spaces are empty and which are filled
 @param dx: given desired dimension, X-axis
 @param dz: given desired dimension, Z-axis
@@ -96,19 +96,19 @@ def resizeXY(X, Y, occurrency, dx, dz):
 			X[x_index] = (dx * X[x_index])/sumX
 
 """
-windows_main is a main function that given three array, X, Y and occurrency, return the HPC model of the window
+window is a main function that given three array, X, Y and occurrency, return the HPC model of the window
 generated according to the three parameters. X and Y contain values of distances calculated on the previous 
 segment of the axis contained respectively in each array. Occurrency is a matrix containing booleans that
 map which cell is empty and which cell is filled. Window0 is an inner function useful for "scaling"
 (@see resizeXY) the resulting window, according to the three parameter dx, dy, dz.
-@param X: array of distances on X-axis, relative distance calculated on the previuos point
-@param Y: array of distances on Y-axis, relative distance calculated on the previuos point
+@param X: array of distances on X-axis, relative distance calculated on the previous point
+@param Y: array of distances on Y-axis, relative distance calculated on the previous point
 @param occurrency: array of occurrences defining which spaces are empty and which are filled
 @param dx: given desired dimension, X-axis
 @param dy: given desired dimension, Y-axis
 @param dz: given desired dimension, Z-axis
 """
-def window_main(X,Y,occurrency):
+def window(X,Y,occurrency):
 
 	def window0(dx,dy,dz):
 
@@ -169,13 +169,13 @@ def window_main(X,Y,occurrency):
 		#generating glass filler for the lower frame and the upper arc
 		glass = CUBOID([SIZE([1])(res)[0]*0.94,dy/4.*.94,SIZE([3])(res)[0]*0.94])
 		glass = T([1,2,3])([dx*0.05, dy/7.+dy*0.05, dz*0.05])(glass)
-		glass = TEXTURE(["vetro2.jpg"])(glass) 
+		glass = TEXTURE(["texture/vetro2.jpg"])(glass) 
 		glassArc = T([1,2,3])([dx/2., dy/7.+dy*0.05, dz])(glassArc)
-		glassArc = TEXTURE(["vetro2.jpg"])(glassArc)
+		glassArc = TEXTURE(["texture/vetro2.jpg"])(glassArc)
 
 		#adding some fancy texture to the frame, assemblig all the parts
 		windowFrame = STRUCT([res, arc, frame, frame2, joint, joint2, handle, handle2])
-		windowFrame = TEXTURE(["pvc.jpg"])(windowFrame)
+		windowFrame = TEXTURE(["texture/pvc.jpg"])(windowFrame)
 		window = STRUCT([windowFrame, glass, glassArc])
 
 		#global scaling
@@ -186,19 +186,19 @@ def window_main(X,Y,occurrency):
 	return window0
 
 """
-door_main is a main function that given three array, X, Y and occurrency, return the HPC model of the door
+door is a main function that given three array, X, Y and occurrency, return the HPC model of the door
 generated according to the three parameters. X and Y contain values of distances calculated on the previous 
 segment of the axis contained respectively in each array. Occurrency is a matrix containing booleans that
 map which cell is empty and which cell is filled. Door0 is an inner function useful for scaling
 the resulting door, according to the three parameter dx, dy, dz.
-@param X: array of distances on X-axis, relative distance calculated on the previuos point
-@param Y: array of distances on Y-axis, relative distance calculated on the previuos point
+@param X: array of distances on X-axis, relative distance calculated on the previous point
+@param Y: array of distances on Y-axis, relative distance calculated on the previous point
 @param occurrency: array of occurrences defining which spaces are empty and which are filled
 @param dx: given desired dimension, X-axis
 @param dy: given desired dimension, Y-axis
 @param dz: given desired dimension, Z-axis
 """
-def door_main(XDoor,YDoor,occurrency):
+def door(XDoor,YDoor,occurrency):
 
 	def door0(dx,dy,dz):
 
@@ -219,38 +219,39 @@ def door_main(XDoor,YDoor,occurrency):
 				else:
 					y_quotes.append(YDoor[y_index])
 			result.append(PROD([ QUOTE([-x_sum, XDoor[x_index]]), QUOTE(y_quotes)]))
+
 		#assembling all together
 		res = PROD([STRUCT(result), Q(dy)])
 		res = MAP([S2,S3,S1])(res)
 		res = S([1,2,3])([dx/SIZE([1])(res)[0], dy/SIZE([2])(res)[0], dz/SIZE([3])(res)[0]]) (res)
-		door = TEXTURE(["iron.jpg", True, False, 1, 1, 0, 1, 1])(STRUCT([res, circle_door]))
+		door = TEXTURE(["texture/iron.jpg", True, False, 1, 1, 0, 1, 1])(STRUCT([res, circle_door]))
 
 		#adding some fancy glass and iron textures
 		glass = CUBOID([SIZE([1])(res)[0]*0.94,dy/4.*.94,SIZE([3])(res)[0]*0.94])
 		glass = T([1,2,3])([dx*0.05, dy/7.+dy*0.05, dz*0.05])(glass)
-		glass = TEXTURE(["vetro.jpg"])(glass)
+		glass = TEXTURE(["texture/vetro.jpg"])(glass)
 
 		#building some details
 		refiner = CUBOID([dx/30, dy/20,dz])
 		refiner = T([1,2])([dx/2.-dx/60,dy])(refiner)
-		refiner = TEXTURE(["iron.jpg", True, False, 1, 1, 0, 1, 1])(refiner)
+		refiner = TEXTURE(["texture/iron.jpg", True, False, 1, 1, 0, 1, 1])(refiner)
 
 		#building the handle
 		handle1 = T(3)(.15)(CUBOID([.05,.02,.2]))
 		handle2 = CUBOID([.05,.02,.05])
 		handle3 = T([1,2])([.01,.02])(CUBOID([.03,.02,.2]))
-		handles = TEXTURE("bronze.jpg")(STRUCT([handle3, handle2, handle1]))
+		handles = TEXTURE("texture/bronze.jpg")(STRUCT([handle3, handle2, handle1]))
 		handles = T([1,2,3])([dx/2.-2*SIZE([1])(handles)[0],dy, dz/2.-1.5*SIZE([3])(handles)[0]])(handles)
 
-		#assembling all together
+		#assembling all together and global scaling
 		finalDoor = S([1,2,3])([dx/SIZE([1])(res)[0], dy/SIZE([2])(res)[0], dz/SIZE([3])(res)[0]]) (STRUCT([door, glass, refiner, handles]))
 		
 		return finalDoor
 
 	return door0
 
-VIEW(window_main(XWindow,YWindow,occurrencyWindow)(2,.2,3))
-#window_main(XWindow,YWindow,occurrencyWindow)(1.5,.3,2.5)
+#VIEW(window(XWindow,YWindow,occurrencyWindow)(2,.2,3))
+#VIEW(window(XWindow,YWindow,occurrencyWindow)(1,.3,2))
 
-VIEW(door_main(XDoor, YDoor, occurencyDoor)(1.8, .4, 3))
-#door_main(XDoor, YDoor, occurencyDoor)(2.5, .3, 3)
+#VIEW(door(XDoor, YDoor, occurencyDoor)(1.8, .4, 3))
+VIEW(door(XDoor, YDoor, occurencyDoor)(2.5, .3, 3))
