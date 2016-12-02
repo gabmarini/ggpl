@@ -1,5 +1,6 @@
 from pyplasm import *
 from larlib import *
+from random import randint
 import os.path
 import csv
 
@@ -15,7 +16,6 @@ yfactor = 15.1/SIZE([2])(muriesterni)[0]
 #muriesterni = S([1,2])([xfactor, yfactor])(muriesterni)
 muretto = OFFSET([12,12])(muriesterni)
 muretto = PROD([muretto, Q(3/xfactor)])
-muretto = COLOR(GREEN)(muretto)
 
 with open("muriinterni.lines", "rb") as file:
 	reader = csv.reader(file, delimiter=",")
@@ -80,7 +80,7 @@ def texturize_floors():
 				lista = []
 				for row in reader:
 					lista.append(POLYLINE([[float(row[0]), float(row[1])],[float(row[2]), float(row[3])]]))
-			res.append(TEXTURE("bagno2.jpg")(SOLIDIFY(STRUCT(lista))))
+			res.append(TEXTURE("bagno"+str(randint(1,6))+".jpg")(SOLIDIFY(STRUCT(lista))))
 			counter = counter + 1
 		else: 
 			counter = 1
@@ -93,7 +93,7 @@ def texturize_floors():
 				lista = []
 				for row in reader:
 					lista.append(POLYLINE([[float(row[0]), float(row[1])],[float(row[2]), float(row[3])]]))
-			res.append(TEXTURE("camera4.jpg")(SOLIDIFY(STRUCT(lista))))
+			res.append(TEXTURE("camera"+str(randint(1,6))+".jpg")(SOLIDIFY(STRUCT(lista))))
 			counter = counter + 1
 		else: 
 			counter = 1
@@ -106,7 +106,7 @@ def texturize_floors():
 				lista = []
 				for row in reader:
 					lista.append(POLYLINE([[float(row[0]), float(row[1])],[float(row[2]), float(row[3])]]))
-			res.append(TEXTURE("sala4.jpg")(SOLIDIFY(STRUCT(lista))))
+			res.append(TEXTURE("sala"+str(randint(1,6))+".jpg")(SOLIDIFY(STRUCT(lista))))
 			counter = counter + 1
 		else: 
 			counter = 1
