@@ -56,7 +56,6 @@ terrace_surfaceW.lines where W is an integer > 0. It actually possible to have a
 (e.g. bathroom1.lines, bathroom2.lines, ecc...). In addtion, this function could add some fancy random texture to the 
 generated floors (up to 6 for every category)
 @return res: list of HPCs representing all the floors generated with their texture if any
-
 """
 def texturized_floors():
 	res = []
@@ -82,58 +81,71 @@ def texturized_floors():
 	res = res + build_floor("terrace_surface", "terrazzo")
 	return res
 
-#generating 2D external walls
-externalWalls = generate_2D_walls("muriesterni")
+"""
+build_house is the function that generates all the house parts: walls and floors. It takes no argument, due to the fact
+that it's parameterized thanks to the data files used in its body. This function also apply some sort of scaling in order
+to transform the units of measure used in inkscape (pixels) into meters.
+@return house: the HPC model of the entire house
+@see generate_2D_walls
+@see generate_hole_models
+@see texturized_floors
+"""
+def build_house():
 
-#defining scaling factors
-xfactor = 15/SIZE([1])(externalWalls)[0]
-yfactor = 15.1/SIZE([2])(externalWalls)[0]
-zfactor = xfactor
+	#generating 2D external walls
+	externalWalls = generate_2D_walls("muriesterni")
 
-#building external 3D-walls
-walls = OFFSET([12,12])(externalWalls)
-walls = PROD([walls, Q(3/xfactor)])
+	#defining scaling factors
+	xfactor = 15/SIZE([1])(externalWalls)[0]
+	yfactor = 15.1/SIZE([2])(externalWalls)[0]
+	zfactor = xfactor
 
-#generating internal 2D-walls
-internalWalls = generate_2D_walls("muriinterni")
+	#building external 3D-walls
+	walls = OFFSET([12,12])(externalWalls)
+	walls = PROD([walls, Q(3/xfactor)])
 
-#building internal 3D-walls
-internals = OFFSET([7,7])(internalWalls)
-internals = PROD([internals, Q(3/xfactor)])
+	#generating internal 2D-walls
+	internalWalls = generate_2D_walls("muriinterni")
 
-#building 3D-doors holes
-doors = generate_hole_models("porte")
-doors = PROD([doors, Q(2.5/xfactor)])
+	#building internal 3D-walls
+	internals = OFFSET([7,7])(internalWalls)
+	internals = PROD([internals, Q(3/xfactor)])
 
-#building 3D-windows holes
-windows = generate_hole_models("finestre")
-windows = PROD([windows, Q(SIZE([3])(walls)[0]/2.)])
-windows = T(3)(SIZE([3])(walls)[0]/4.)(windows)
+	#building 3D-doors holes
+	doors = generate_hole_models("porte")
+	doors = PROD([doors, Q(2.5/xfactor)])
 
-#building 2D-model of the terrace walls
-terrace_walls = generate_2D_walls("terrace_walls")
-terrace_walls = OFFSET([5,5])(terrace_walls)
+	#building 3D-windows holes
+	windows = generate_hole_models("finestre")
+	windows = PROD([windows, Q(SIZE([3])(walls)[0]/2.)])
+	windows = T(3)(SIZE([3])(walls)[0]/4.)(windows)
 
-#building 3D-model of the terrace walls with some fancy texture addition
-terrace_walls = PROD([terrace_walls, Q(1.5/xfactor)])
-terrace_walls = TEXTURE(["texture/wood2.jpg",True,True,10,10,PI/2.,20,20,10,10])(terrace_walls)
+	#building 2D-model of the terrace walls
+	terrace_walls = generate_2D_walls("terrace_walls")
+	terrace_walls = OFFSET([5,5])(terrace_walls)
 
-#building the frame assembling the external walls and the interior walls
-frame = STRUCT([walls, internals])
+	#building 3D-model of the terrace walls with some fancy texture addition
+	terrace_walls = PROD([terrace_walls, Q(1.5/xfactor)])
+	terrace_walls = TEXTURE(["texture/wood2.jpg",True,True,10,10,PI/2.,20,20,10,10])(terrace_walls)
 
-#breaking the walls in order to put some windows and doors
-exteriors = DIFFERENCE([walls, windows, doors])
-interiors = DIFFERENCE([internals, doors, windows])
+	#building the frame assembling the external walls and the interior walls
+	frame = STRUCT([walls, internals])
 
-#adding some fancy texture to the walls
-exteriors = TEXTURE(["texture/brick.jpg",True,True,10,10,PI/2.,20,20,10,10])(exteriors)
-interiors = TEXTURE(["texture/wood.jpg",True,True,1,1,PI/2.,5,5])(interiors)
+	#breaking the walls in order to put some windows and doors
+	exteriors = DIFFERENCE([walls, windows, doors])
+	interiors = DIFFERENCE([internals, doors, windows])
 
-#building the floors
-floor = STRUCT(texturized_floors())
+	#adding some fancy texture to the walls
+	exteriors = TEXTURE(["texture/brick.jpg",True,True,10,10,PI/2.,20,20,10,10])(exteriors)
+	interiors = TEXTURE(["texture/wood.jpg",True,True,1,1,PI/2.,5,5])(interiors)
 
-#scaling and assembling all together
-frame = S([1,2,3])([xfactor,yfactor, zfactor])(STRUCT([interiors, exteriors, terrace_walls, floor]))
+	#building the floors
+	floor = STRUCT(texturized_floors())
+
+	#scaling and assembling all together
+	house = S([1,2,3])([xfactor,yfactor, zfactor])(STRUCT([interiors, exteriors, terrace_walls, floor]))
+
+	return house
 
 #showing the result
-VIEW(frame)
+VIEW(build_house())
