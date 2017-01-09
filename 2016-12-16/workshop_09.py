@@ -63,10 +63,61 @@ def planeFromLine(angle, line):
 
 	return [a,b,c,d]
 
+def sympyPlaneFromLine(angle, line):
+	"""
+	sympyPlaneFromLine is a function that given a line and an angle, return the sympy object
+	representing the plane cutted by the line, the plane contain both the former and the latter point of the line.
+	@param angle: the rotation that describe a particular plane
+	@param line: the line used to describe the boundle of planes
+	@return plane: a sympy Plane object
+	"""
+
+	partialPlane = PROD([POLYLINE(line), QUOTE([2])])
+	partialPlane = T([1,2])([-line[0][0], -line[0][1]])(partialPlane)
+	partialPlane = ROTN([-angle, [line[1][0] - line[0][0], line[1][1]-line[0][1],0]])(partialPlane)
+	partialPlane = T([1,2])([+line[0][0], +line[0][1]])(partialPlane)
+
+	#obtaining 3 points
+	points = []
+	points.append(UKPOL(partialPlane)[0][0])
+	points.append(UKPOL(partialPlane)[0][1])
+	points.append(UKPOL(partialPlane)[0][2])
+
+	x1 = points[0][0]
+	x2 = points[1][0]
+	x3 = points[2][0]
+	y1 = points[0][1]
+	y2 = points[1][1]
+	y3 = points[2][1]
+	z1 = points[0][2]
+	z2 = points[1][2]
+	z3 = points[2][2]
+
+	return Plane((x1, y1, z1), (x2, y2, z2), (x3, y3, z3))
+
+def calculateHeight(planes, p1, p2, minimum):
+	"""
+	calculateHeight is a function that given a list of planes (pitches), two points (a 3D line), 
+	and a current minimum height, return the minimum height value of the roof in order to 
+	disallow pitch intersections in case of high roof height values.
+	@param planes: the planes to check against
+	@param p1: former point of the 3D line
+	@param p2: latter point of the 3D line
+	@param minimum: current roof height minimum
+	@return minimum height of the roof that disallow pitch intersections 
+	"""
+	L = Line3D(Point3D(p1[0], p1[1], p1[2]), Point3D(p2[0], p2[1], p2[2]))
+	heights = []
+	for plane in planes:
+		heights.append(round((plane.intersection(L)[0][2]).evalf(), 2))
+	heights = [x for x in heights if x > 0]
+	return minimum if minimum < min(heights) and minimum != 0 else min(heights)
+
+
 def roofBuilder(verts, angle, height):
 	"""
 	roofBuilder is a function that given a list of vertices (roof bottom), an angle and an height, 
-	return an HPC model of a roof.
+	return an HPC model of a mansard roof.
 	@param verts: the vertices that define the shape of the roof bottom
 	@param angle: the angle used to rotate the roof pitches
 	@param height: the desired height of the roof
@@ -77,14 +128,15 @@ def roofBuilder(verts, angle, height):
 
 	roofBase = SOLIDIFY(POLYLINE(verts + [verts[0]]))
 
+	sympyPlanes = []
 	planes = []
 	for line in lines: 
 		planes.append(planeFromLine(angle,line))
+		sympyPlanes.append(sympyPlaneFromLine(angle,line))
 
 	#considering planes as couples
 	couplePlanes = list2CoupledList(planes)
 
-	roofTop = []
 	linesEquations = []
 
 	#calculating lines equations through planes intersections
@@ -93,13 +145,16 @@ def roofBuilder(verts, angle, height):
 		solved = solve([Eq(couple[0][0]*x+couple[0][1]*y+couple[0][2]*z, couple[0][3]),
 			Eq(couple[1][0]*x+couple[1][1]*y+couple[1][2]*z, couple[1][3])])
 		linesEquations.append(solved)
-		roofTop.append([round(float(solved[x].subs(z,roofHeight)),2), round(float(solved[y].subs(z,roofHeight)),2)])
-
-	roofTop.append(roofTop[0])
-	terrace = T([3])([roofHeight])(SOLIDIFY(POLYLINE(roofTop)))
 
 	coupleLines = list2CoupledList(linesEquations)
 	roofPitch = []
+	roofHeight = height
+
+	#calculating roof height
+	for couple in coupleLines:
+		base1 = [round(float((couple[0])[x].subs(z,0)),1),round(float((couple[0])[y].subs(z,0)),1),0]
+		top1 = [round(float((couple[0])[x].subs(z,1)),1),round(float((couple[0])[y].subs(z,1)),1),1]
+		roofHeight = calculateHeight(sympyPlanes, base1, top1, roofHeight)
 
 	#building roof pitches
 	for couple in coupleLines:
@@ -110,6 +165,14 @@ def roofBuilder(verts, angle, height):
 		points = [base1, base2, top2, top1, base1]
 		faces = [[1,2,3,4]]
 		roofPitch.append(TEXTURE("textures/roof.jpg")(MKPOL([points, faces, 1])))
+
+	#building rooftop
+	roofTop = []
+	for equation in linesEquations:
+		roofTop.append([round(float(equation[x].subs(z,roofHeight)),2), round(float(equation[y].subs(z,roofHeight)),2)])
+
+	roofTop.append(roofTop[0])
+	terrace = T([3])([roofHeight])(SOLIDIFY(POLYLINE(roofTop)))
 
 	roofPitch = STRUCT(roofPitch)
 
@@ -124,7 +187,7 @@ v5 = [7,7]
 v6 = [3,8]
 v7 = [0,7]
 
-roofHeight = 1
+roofHeight = 2
 
 angle = PI/3.
 
