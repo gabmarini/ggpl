@@ -1,5 +1,4 @@
 from pyplasm import *
-from larlib import *
 from random import randint
 import os.path
 import csv
@@ -121,7 +120,7 @@ terrace_surfaceW.lines where W is an integer > 0. It actually possible to have a
 generated floors (up to 6 for every category)
 @return res: list of HPCs representing all the floors generated with their texture if any
 """
-def texturized_floors(story):
+def texturized_floors(story, ladderHoleModel):
 	res = []
 	def build_floor(roomType, texturePrefix):
 		counter = 1
@@ -133,7 +132,11 @@ def texturized_floors(story):
 					polylineList = []
 					for row in reader:
 						polylineList.append(POLYLINE([[float(row[0]), float(row[1])],[float(row[2]), float(row[3])]]))
-				result.append(TEXTURE("texture/" + texturePrefix+str(randint(1,6))+".jpg")(SOLIDIFY(STRUCT(polylineList))))
+				floor = PROD([SOLIDIFY(STRUCT(polylineList)),Q(.5)])
+				ladderHole = T([3])([-1])(ladderHoleModel)
+				if(story != 0):
+					floor = DIFFERENCE([floor, ladderHole])
+				result.append(TEXTURE("texture/" + texturePrefix+str(randint(1,6))+".jpg")(floor))
 				counter = counter + 1
 			else: 
 				counter = 1
@@ -155,7 +158,7 @@ to transform the units of measure used in inkscape (pixels) into meters.
 @see generate_hole_models
 @see texturized_floors
 """
-def build_house(story, windowsHoleModel = False, doorHoleModel = False):
+def build_house(story, windowsHoleModel = False, doorHoleModel = False, ladderHoleModel=False):
 
 	#generating 2D external walls
 	externalWalls = generate_2D_walls("muriesterni"+str(story))
@@ -222,7 +225,7 @@ def build_house(story, windowsHoleModel = False, doorHoleModel = False):
 	interiors = TEXTURE(["texture/wood1.jpg",True,True,1,1,PI/2.,5,5])(interiors)
 
 	#building the floors
-	floor = STRUCT(texturized_floors(story))
+	floor = STRUCT(texturized_floors(story, ladderHoleModel))
 	#floor = CUBOID([0,0,0])
 
 	#scaling and assembling all together
