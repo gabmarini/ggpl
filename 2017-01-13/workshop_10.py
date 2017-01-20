@@ -40,7 +40,7 @@ xfactor = 15/SIZE([1])(externalWalls)[0]
 yfactor = 15.1/SIZE([2])(externalWalls)[0]
 zfactor = xfactor
 
-def buildMultiStorey(nStorey):
+def multistorey_house(nStorey):
 	"""
 	buildMultiStorey accept the number of storey in the building.
 	"""
@@ -107,7 +107,7 @@ def buildMultiStorey(nStorey):
 
 	return renderWindows
 		
-VIEW((buildMultiStorey(2)
+VIEW((multistorey_house(2)
 	(XWindow,YWindow,occurrencyWindow,windoor.window(XWindow, YWindow, occurrencyWindow))
 	(XDoor,YDoor,occurrencyDoor, windoor.door(XDoor, YDoor, occurrencyDoor))
 	("muriesterni0",PI/5.,3/zfactor)
