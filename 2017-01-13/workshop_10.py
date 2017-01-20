@@ -46,11 +46,11 @@ def multistorey_house(nStorey):
 	"""
 	def renderWindows(XWindow, YWindow, occurrencyWindow, windowModel = False):
 		"""
-		renderWindows accept the window's cells and the occurrency, and optionally a windowModel 
+		renderWindows accept the window's cells and the occurrency, and optionally a window generating function 
 		"""
 		def renderDoors(XDoor, YDoor, occurrencyDoor, doorModel = False):
 			"""
-			renderWindows accept the door's cells and the occurrency, and optionally a doorModel 
+			renderWindows accept the door's cells and the occurrency, and optionally a door generating function 
 			"""
 			def renderRoof(vertices, pitchAngle, height):
 				"""

@@ -131,7 +131,7 @@ def generate_doors_special_hole_models(linesFileName, modelBuilder, height):
 	return (models, holes)
 
 
-def texturized_floors(story, ladderModel = False):
+def texturized_floors(story, ladderHoleModel = False):
 	"""
 	texturized_floors is a function that return a list of HPC models, in particular models of the different floors that are
 	present in the building, including the external floors. two params are accepted, the current story generated and
@@ -143,7 +143,7 @@ def texturized_floors(story, ladderModel = False):
 	(e.g. bathroom1.lines, bathroom2.lines, ecc...), K is the number corresponding to the current story. 
 	In addition, this function could add some fancy random texture to the 	generated floors (up to 6 for every category)
 	@param story: current story
-	@param ladderModel: the ladder model used to calculate the holes in the floor 
+	@param ladderHoleModel: the ladder model used to calculate the holes in the floor 
 	@return res: list of HPCs representing all the floors generated with their texture if any
 	"""
 	res = []
@@ -158,8 +158,8 @@ def texturized_floors(story, ladderModel = False):
 					for row in reader:
 						polylineList.append(POLYLINE([[float(row[0]), float(row[1])],[float(row[2]), float(row[3])]]))
 				floor = PROD([SOLIDIFY(STRUCT(polylineList)),Q(.5)])
-				ladderHole = T([3])([-1])(ladderModel)
-				if(story != 0 and ladderModel):
+				ladderHole = T([3])([-1])(ladderHoleModel)
+				if(story != 0 and ladderHoleModel):
 					floor = DIFFERENCE([floor, ladderHole])
 				result.append(TEXTURE("texture/" + texturePrefix+str(randint(1,6))+".jpg")(floor))
 				counter = counter + 1
@@ -174,7 +174,7 @@ def texturized_floors(story, ladderModel = False):
 	return res
 
 
-def build_house(story, windowsGenerationFunction = False, doorsGenerationFunction = False, ladderModel = False):
+def build_house(story, windowsGenerationFunction = False, doorsGenerationFunction = False, ladderHoleModel = False):
 	"""
 	texturized_floors is a function that return a list of HPC models, in particular models of the different floors that are
 	present in the building, including the external floors. No params are formally required, however this function build all
@@ -251,7 +251,7 @@ def build_house(story, windowsGenerationFunction = False, doorsGenerationFunctio
 	interiors = TEXTURE(["texture/wood1.jpg",True,True,1,1,PI/2.,5,5])(interiors)
 
 	#building the floors
-	floor = STRUCT(texturized_floors(story, ladderModel))
+	floor = STRUCT(texturized_floors(story, ladderHoleModel))
 	#floor = CUBOID([0,0,0])
 
 	#scaling and assembling all together
