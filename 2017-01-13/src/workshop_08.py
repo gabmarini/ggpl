@@ -34,7 +34,7 @@ def generate_hole_models(linesFileName):
 		acc = 0
 		for row in reader:
 			acc = acc + 1
-			#appendig vertices representing the polygon's base
+			#appending vertices representing the polygon's base
 			basePolygon.append([float(row[0]),float(row[1])])
 			#every 4 points build a 2D-cuboid, rinse and repeat
 			if(acc == 4):
@@ -45,7 +45,18 @@ def generate_hole_models(linesFileName):
 	wannaBeHoles = STRUCT(wannaBeHoles)
 	return wannaBeHoles
 
+
 def generate_windows_special_hole_models(linesFileName, modelBuilder, height):
+	"""
+	generate_windows_special_hole_models is a function that given a .lines's file name, a model builder function
+	and a wall height, generate a couple containing two lists: the former contain the windows models, the latter
+	contain the windows model used to generate the holes in the walls.
+	@param linesFileName: the file name of .lines file containing lines used to place windows models
+	@param modelBuilder: the windows's generator function
+	@param height: the wall height used to position the models
+	@return (models, holes): models contain the actual models of the windows meanwhile, holes contain
+	the convex hulls of the corresponding element in models list
+	"""
 	with open("lines/"+ linesFileName + ".lines", "rb") as file:
 		reader = csv.reader(file, delimiter=",")
 		holes = []
@@ -78,6 +89,16 @@ def generate_windows_special_hole_models(linesFileName, modelBuilder, height):
 	return (models, holes)
 
 def generate_doors_special_hole_models(linesFileName, modelBuilder, height):
+	"""
+	generate_doors_special_hole_models is a function that given a .lines's file name, a model builder function
+	and a wall height, generate a couple containing two lists: the former contain the doors models, the latter
+	contain the doors model used to generate the holes in the walls.
+	@param linesFileName: the file name of .lines file containing lines used to place doors models
+	@param modelBuilder: the doors's generator function
+	@param height: the wall height used to position the models
+	@return (models, holes): models contain the actual models of the windows meanwhile, holes contain
+	the convex hulls of the corresponding element in models list
+	"""
 	with open("lines/"+ linesFileName + ".lines", "rb") as file:
 		reader = csv.reader(file, delimiter=",")
 		holes = []
@@ -109,18 +130,22 @@ def generate_doors_special_hole_models(linesFileName, modelBuilder, height):
 	models = STRUCT(models)
 	return (models, holes)
 
-"""
-texturized_floors is a function that return a list of HPC models, in particular models of the different floors that are
-present in the building, including the external floors. No params are formally required, however this function build all
-the floors of 4 type of environments: livingroom, bathroom, bedroom, terrace.
-Moreover, in order to generate correctly all the floors, the following files are needed: bedroomX.lines, 
-where X is an integer > 0, bathroomY.lines where Y is an integer > 0, livingroomZ.lines where Z in an integer > 0, 
-terrace_surfaceW.lines where W is an integer > 0. It actually possible to have a series of file 
-(e.g. bathroom1.lines, bathroom2.lines, ecc...). In addtion, this function could add some fancy random texture to the 
-generated floors (up to 6 for every category)
-@return res: list of HPCs representing all the floors generated with their texture if any
-"""
-def texturized_floors(story, ladderHoleModel):
+
+def texturized_floors(story, ladderModel = False):
+	"""
+	texturized_floors is a function that return a list of HPC models, in particular models of the different floors that are
+	present in the building, including the external floors. two params are accepted, the current story generated and
+	eventually the ladder model used to generate hole in the floors, however this function build all the floors of 4 
+	type of environments: livingroom, bathroom, bedroom, terrace.
+	Moreover, in order to generate correctly all the floors, the following files are needed: bedroomKX.lines, 
+	where X is an integer > 0, bathroomKY.lines where Y is an integer > 0, livingroomKZ.lines where Z in an integer > 0, 
+	terrace_surfaceKW.lines where W is an integer > 0. It actually possible to have a series of file 
+	(e.g. bathroom1.lines, bathroom2.lines, ecc...), K is the number corresponding to the current story. 
+	In addition, this function could add some fancy random texture to the 	generated floors (up to 6 for every category)
+	@param story: current story
+	@param ladderModel: the ladder model used to calculate the holes in the floor 
+	@return res: list of HPCs representing all the floors generated with their texture if any
+	"""
 	res = []
 	def build_floor(roomType, texturePrefix):
 		counter = 1
@@ -133,8 +158,8 @@ def texturized_floors(story, ladderHoleModel):
 					for row in reader:
 						polylineList.append(POLYLINE([[float(row[0]), float(row[1])],[float(row[2]), float(row[3])]]))
 				floor = PROD([SOLIDIFY(STRUCT(polylineList)),Q(.5)])
-				ladderHole = T([3])([-1])(ladderHoleModel)
-				if(story != 0):
+				ladderHole = T([3])([-1])(ladderModel)
+				if(story != 0 and ladderModel):
 					floor = DIFFERENCE([floor, ladderHole])
 				result.append(TEXTURE("texture/" + texturePrefix+str(randint(1,6))+".jpg")(floor))
 				counter = counter + 1
@@ -148,18 +173,19 @@ def texturized_floors(story, ladderHoleModel):
 	res = res + build_floor("terrace_surface", "terrazzo")
 	return res
 
-"""
-MODIFICATO
-build_house is the function that generates all the house parts: walls and floors. It takes no argument, due to the fact
-that it's parameterized thanks to the data files used in its body. This function also apply some sort of scaling in order
-to transform the units of measure used in inkscape (pixels) into meters.
-@return house: the HPC model of the entire house
-@see generate_2D_walls
-@see generate_hole_models
-@see texturized_floors
-"""
-def build_house(story, windowsHoleModel = False, doorHoleModel = False, ladderHoleModel=False):
 
+def build_house(story, windowsGenerationFunction = False, doorsGenerationFunction = False, ladderModel = False):
+	"""
+	texturized_floors is a function that return a list of HPC models, in particular models of the different floors that are
+	present in the building, including the external floors. No params are formally required, however this function build all
+	the floors of 4 type of environments: livingroom, bathroom, bedroom, terrace.
+	Moreover, in order to generate correctly all the floors, the following files are needed: bedroomX.lines, 
+	where X is an integer > 0, bathroomY.lines where Y is an integer > 0, livingroomZ.lines where Z in an integer > 0, 
+	terrace_surfaceW.lines where W is an integer > 0. It actually possible to have a series of file 
+	(e.g. bathroom1.lines, bathroom2.lines, ecc...). In addtion, this function could add some fancy random texture to the 
+	generated floors (up to 6 for every category)
+	@return res: list of HPCs representing all the floors generated with their texture if any
+	"""
 	#generating 2D external walls
 	externalWalls = generate_2D_walls("muriesterni"+str(story))
 
@@ -180,19 +206,19 @@ def build_house(story, windowsHoleModel = False, doorHoleModel = False, ladderHo
 	internals = PROD([internals, Q(3/xfactor)])
 
 	#building 3D-doors holes
-	if(not doorHoleModel):
+	if(not doorsGenerationFunction):
 		doors = generate_hole_models("porte"+str(story))
 		doors = PROD([doors, Q(2.5/xfactor)])
 	else:
-		doors = generate_doors_special_hole_models("porte_model"+str(story), doorHoleModel, 3/zfactor)
+		doors = generate_doors_special_hole_models("porte_model"+str(story), doorsGenerationFunction, 3/zfactor)
 
 	#building 3D-windows holes
-	if(not windowsHoleModel):
+	if(not windowsGenerationFunction):
 		windows = generate_hole_models("finestre"+str(story))
 		windows = PROD([windows, Q(SIZE([3])(walls)[0]/2.)])
 		windows = T(3)(SIZE([3])(walls)[0]/4.)(windows)
 	else:
-		windows = generate_windows_special_hole_models("finestre_model"+str(story),windowsHoleModel,4/zfactor)
+		windows = generate_windows_special_hole_models("finestre_model"+str(story),windowsGenerationFunction,4/zfactor)
 
 	#building 2D-model of the terrace walls
 	terrace_walls = generate_2D_walls("terrace_walls"+str(story))
@@ -206,16 +232,16 @@ def build_house(story, windowsHoleModel = False, doorHoleModel = False, ladderHo
 	frame = STRUCT([walls, internals])
 
 	#breaking the walls in order to put some windows and doors
-	if (not windowsHoleModel and not doorHoleModel):
+	if (not windowsGenerationFunction and not doorsGenerationFunction):
 		exteriors = DIFFERENCE([walls, windows, doors])
 		interiors = DIFFERENCE([internals, doors, windows])
-	if (windowsHoleModel and not doorHoleModel): 
+	if (windowsGenerationFunction and not doorsGenerationFunction): 
 		exteriors = DIFFERENCE([walls, doors, windows[1]])
 		interiors = DIFFERENCE([internals, doors, windows[1]])
-	if (not windowsHoleModel and doorHoleModel):
+	if (not windowsGenerationFunction and doorsGenerationFunction):
 		exteriors = DIFFERENCE([walls, doors[1], windows])
 		interiors = DIFFERENCE([internals, doors[1], windows])
-	if (windowsHoleModel and doorHoleModel):
+	if (windowsGenerationFunction and doorsGenerationFunction):
 		exteriors = DIFFERENCE([walls, doors[1], windows[1]])
 		interiors = DIFFERENCE([internals, doors[1], windows[1]])
 		
@@ -225,22 +251,19 @@ def build_house(story, windowsHoleModel = False, doorHoleModel = False, ladderHo
 	interiors = TEXTURE(["texture/wood1.jpg",True,True,1,1,PI/2.,5,5])(interiors)
 
 	#building the floors
-	floor = STRUCT(texturized_floors(story, ladderHoleModel))
+	floor = STRUCT(texturized_floors(story, ladderModel))
 	#floor = CUBOID([0,0,0])
 
 	#scaling and assembling all together
-	if (not windowsHoleModel and not doorHoleModel):	
+	if (not windowsGenerationFunction and not doorsGenerationFunction):	
 		house = S([1,2,3])([xfactor,yfactor, zfactor])(STRUCT([interiors, exteriors, terrace_walls, floor]))
-	if (windowsHoleModel and not doorHoleModel):
+	if (windowsGenerationFunction and not doorsGenerationFunction):
 		house = S([1,2,3])([xfactor,yfactor, zfactor])(STRUCT([interiors, exteriors, terrace_walls, floor, windows[0]]))
-	if (not windowsHoleModel and doorHoleModel):
+	if (not windowsGenerationFunction and doorsGenerationFunction):
 		house = S([1,2,3])([xfactor,yfactor, zfactor])(STRUCT([interiors, exteriors, terrace_walls, floor, doors[0]]))
-	if (windowsHoleModel and doorHoleModel):
+	if (windowsGenerationFunction and doorsGenerationFunction):
 		house = S([1,2,3])([xfactor,yfactor, zfactor])(STRUCT([interiors, exteriors, terrace_walls, floor, windows[0], doors[0]]))
 
 
 
 	return house
-
-#showing the result
-#VIEW(build_house())

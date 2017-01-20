@@ -116,7 +116,6 @@ def calculateHeight(planes, p1, p2, minimum):
 
 def roofBuilder(verts, angle, height):
 	"""
-	MODIFICATO
 	roofBuilder is a function that given a list of vertices (roof bottom), an angle and an height, 
 	return an HPC model of a mansard roof.
 	@param verts: the vertices that define the shape of the roof bottom

@@ -8,6 +8,13 @@ def circle(r):
 	return circle0
 
 def make_step(step_length, step_width, riser):
+	"""
+	make_step is a function that given a step length, a step width and a riser generate a single step of a spiral
+	stair, including a pole's part at the beginning of the step.
+	@param step_length: the length of a single step
+	@param step_width: the width of a single step
+	@param riser: riser value of the step
+	"""
 	min,max = step_width
 	diff = (max-min)/2.
 	step_partial = POLYLINE([[0,0],[0,min],[step_length, min+diff],[step_length,-diff]])
@@ -26,7 +33,15 @@ def make_step(step_length, step_width, riser):
 	refiner_pole = CYLINDER([min+(min*0.2),riser])(20)
 	return STRUCT([step,refiner_pole])
 
+
 def make_ladder(height, inter_step, riser):
+	"""
+	make_ladder is a function that given an height, an inter step value and a riser return the model of a ladder.
+	@param height: the desired height of the stair
+	@param inter_step: the desired height between two steps
+	@param riser: the desired riser value for a step
+	@return ladder: the ladder model
+	"""
 	step_number = math.ceil(height/(inter_step+riser))
 	step = TEXTURE("texture/wood.jpg")(make_step(.8,[.03,.5],.04))
 	handrail = make_handrail(.5,.8)
@@ -38,6 +53,13 @@ def make_ladder(height, inter_step, riser):
 	return STRUCT(ladder)
 
 def make_handrail(length, step_length):
+	"""
+	make_handrail is a function that given an handrail lenght and a step length generate the handrail model 
+	of the corresponding step.
+	@param length: the length of the handrail
+	@param step_length: the lenght of the step
+	@return handrail: handrail's model generated
+	"""
 	handrail = CYLINDER([0.04,length+length*0.075])(30)
 	handrail = R([1,2])(PI/2)(handrail)
 	handrail = R([2,3])(PI/2-SIN(length))(handrail)
