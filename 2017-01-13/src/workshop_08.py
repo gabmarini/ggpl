@@ -62,9 +62,9 @@ def generate_windows_special_hole_models(linesFileName, modelBuilder, height):
 		holes = []
 		models = []
 		xMin = 100000000
-		xMax = 0
+		xMax = -100000000
 		yMin = 100000000
-		yMax = 0
+		yMax = -100000000
 		for row in reader:
 			xMin = min(xMin, float(row[0]), float(row[2]))
 			xMax = max(xMax, float(row[0]), float(row[2]))
@@ -81,9 +81,9 @@ def generate_windows_special_hole_models(linesFileName, modelBuilder, height):
 			holes.append(JOIN(SKEL_1(model)))
 			models.append(model)
 			xMin = 100000000
-			xMax = 0
+			xMax = -100000000
 			yMin = 100000000
-			yMax = 0
+			yMax = -100000000
 	holes = STRUCT(holes)
 	models = STRUCT(models)
 	return (models, holes)
@@ -104,9 +104,9 @@ def generate_doors_special_hole_models(linesFileName, modelBuilder, height):
 		holes = []
 		models = []
 		xMin = 100000000
-		xMax = 0
+		xMax = -100000000
 		yMin = 100000000
-		yMax = 0
+		yMax = -100000000
 		for row in reader:
 			xMin = min(xMin, float(row[0]), float(row[2]))
 			xMax = max(xMax, float(row[0]), float(row[2]))
@@ -123,9 +123,9 @@ def generate_doors_special_hole_models(linesFileName, modelBuilder, height):
 			holes.append(JOIN(SKEL_1(model)))
 			models.append(model)
 			xMin = 100000000
-			xMax = 0
+			xMax = -100000000
 			yMin = 100000000
-			yMax = 0
+			yMax = -100000000
 	holes = STRUCT(holes)
 	models = STRUCT(models)
 	return (models, holes)
@@ -176,16 +176,17 @@ def texturized_floors(story, ladderHoleModel = False):
 
 def build_house(story, windowsGenerationFunction = False, doorsGenerationFunction = False, ladderHoleModel = False):
 	"""
-	texturized_floors is a function that return a list of HPC models, in particular models of the different floors that are
-	present in the building, including the external floors. No params are formally required, however this function build all
-	the floors of 4 type of environments: livingroom, bathroom, bedroom, terrace.
-	Moreover, in order to generate correctly all the floors, the following files are needed: bedroomX.lines, 
-	where X is an integer > 0, bathroomY.lines where Y is an integer > 0, livingroomZ.lines where Z in an integer > 0, 
-	terrace_surfaceW.lines where W is an integer > 0. It actually possible to have a series of file 
-	(e.g. bathroom1.lines, bathroom2.lines, ecc...). In addtion, this function could add some fancy random texture to the 
-	generated floors (up to 6 for every category)
-	@return res: list of HPCs representing all the floors generated with their texture if any
+	build_house is the main function that given a story identifier build the spatial frame (barebone)
+	of the story, optionally it takes ulterior three optional parameter, representing a window generating
+	function, a door generating function and a ladder hole model; the firsts two are used to insert
+	windows and doors inside the spatial frame, meanwhile the last one is used to generate the hole
+	in the floors, in order to make space for the spiral stair.
+	@param story: the identifier of the current story (e.g. 0 ground floor, 1 first floor, ecc...)
+	@param windowsGenerationFunction: the windows generation function, accept window's dimension (optional)
+	@param doorsGenerationFunction: the doors generation function, accept door's dimension (optional)
+	@param ladderHoleModel: the hole's model of the stair (optional)
 	"""
+	
 	#generating 2D external walls
 	externalWalls = generate_2D_walls("muriesterni"+str(story))
 
@@ -252,7 +253,6 @@ def build_house(story, windowsGenerationFunction = False, doorsGenerationFunctio
 
 	#building the floors
 	floor = STRUCT(texturized_floors(story, ladderHoleModel))
-	#floor = CUBOID([0,0,0])
 
 	#scaling and assembling all together
 	if (not windowsGenerationFunction and not doorsGenerationFunction):	
@@ -263,7 +263,5 @@ def build_house(story, windowsGenerationFunction = False, doorsGenerationFunctio
 		house = S([1,2,3])([xfactor,yfactor, zfactor])(STRUCT([interiors, exteriors, terrace_walls, floor, doors[0]]))
 	if (windowsGenerationFunction and doorsGenerationFunction):
 		house = S([1,2,3])([xfactor,yfactor, zfactor])(STRUCT([interiors, exteriors, terrace_walls, floor, windows[0], doors[0]]))
-
-
 
 	return house
