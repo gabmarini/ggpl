@@ -158,8 +158,8 @@ def texturized_floors(story, ladderHoleModel = False):
 					for row in reader:
 						polylineList.append(POLYLINE([[float(row[0]), float(row[1])],[float(row[2]), float(row[3])]]))
 				floor = PROD([SOLIDIFY(STRUCT(polylineList)),Q(.5)])
-				ladderHole = T([3])([-1])(ladderHoleModel)
 				if(story != 0 and ladderHoleModel):
+					ladderHole = T([3])([-1])(ladderHoleModel)
 					floor = DIFFERENCE([floor, ladderHole])
 				result.append(TEXTURE("texture/" + texturePrefix+str(randint(1,6))+".jpg")(floor))
 				counter = counter + 1
@@ -186,7 +186,7 @@ def build_house(story, windowsGenerationFunction = False, doorsGenerationFunctio
 	@param doorsGenerationFunction: the doors generation function, accept door's dimension (optional)
 	@param ladderHoleModel: the hole's model of the stair (optional)
 	"""
-	
+
 	#generating 2D external walls
 	externalWalls = generate_2D_walls("muriesterni"+str(story))
 
