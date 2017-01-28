@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   height="297mm"
+   width="210mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg4"
+   sodipodi:docname="disegno.svg"
+   inkscape:version="0.92.0 unknown">
+  
+  
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="curve 2"
+     style="display:inline">
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 42.374352,255.97627 c 17.762658,-23.62635 35.525095,-47.25241 45.036585,-60.62271 9.511489,-13.37029 10.772165,-16.4849 12.774233,-22.60233 2.00206,-6.11743 4.74612,-15.23959 7.48981,-24.36051"
+       id="path243"
+       inkscape:connector-curvature="0"
+       inkscape:path-effect="#path-effect245"
+       inkscape:original-d="m 42.374352,255.97627 c 17.7627,-23.62632 35.525137,-47.25238 53.287307,-70.87817 1.260903,-3.11478 2.521579,-6.22939 3.781972,-9.34369 2.743769,-9.12056 5.487829,-18.24272 8.231349,-27.36369"
+       sodipodi:nodetypes="cccc" />
+  </g>
+  
+</svg>
