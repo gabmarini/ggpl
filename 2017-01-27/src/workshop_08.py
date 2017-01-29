@@ -227,7 +227,7 @@ def build_house(type, story, windowsGenerationFunction = False, doorsGenerationF
 
 	#building 3D-model of the terrace walls with some fancy texture addition
 	terrace_walls = PROD([terrace_walls, Q(1.5/xfactor)])
-	terrace_walls = TEXTURE(["texture/wood2.jpg",True,True,10,10,PI/2.,200,200,100,100])(terrace_walls)
+	terrace_walls = TEXTURE(["texture/terrace" + str(randint(1,10)) + ".jpg",True,True,10,10,PI/2.,200,200,100,100])(terrace_walls)
 
 	#building the frame assembling the external walls and the interior walls
 	frame = STRUCT([walls, internals])

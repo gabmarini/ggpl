@@ -1,6 +1,7 @@
 from pyplasm import * 
 from sympy import *
 import numpy as np
+from random import randint
 
 def list2CoupledList(startList):
 	"""
@@ -128,7 +129,7 @@ def roofBuilder(verts, angle, height):
 	lines = list2CoupledList(verts)
 
 	roofBase = SOLIDIFY(POLYLINE(verts + [verts[0]]))
-	roofBase = TEXTURE("texture/wood2.jpg")(roofBase)
+	roofBase = TEXTURE("texture/wood.jpg")(roofBase)
 
 
 	sympyPlanes = []
@@ -160,6 +161,7 @@ def roofBuilder(verts, angle, height):
 		#roofHeight = calculateHeight(sympyPlanes, base1, top1, roofHeight)
 
 	#building roof pitches
+	pitchTexture = str(randint(1,5))
 	for couple in coupleLines:
 		base1 = [round(float((couple[0])[x].subs(z,0)),2),round(float((couple[0])[y].subs(z,0)),2),0]
 		base2 = [round(float((couple[1])[x].subs(z,0)),2),round(float((couple[1])[y].subs(z,0)),2),0]
@@ -167,7 +169,7 @@ def roofBuilder(verts, angle, height):
 		top2 = [round(float((couple[1])[x].subs(z,roofHeight)),2),round(float((couple[1])[y].subs(z,roofHeight)),2),round(roofHeight,2)]
 		points = [base1, top1, top2, base2, base1]
 		faces = [[1,2,3,4,5]]
-		roofPitch.append(COLOR(Color4f([61/255.,61/255., 41/255.]))(TEXTURE("texture/roof.jpg")(MKPOL([points, faces, 1]))))
+		roofPitch.append(COLOR(Color4f([61/255.,61/255., 41/255.]))(TEXTURE("texture/roof" + pitchTexture + ".jpg")(MKPOL([points, faces, 1]))))
 
 	#building rooftop
 	roofTop = []
@@ -179,7 +181,7 @@ def roofBuilder(verts, angle, height):
 
 	roofPitch = STRUCT(roofPitch)
 
-	return STRUCT([TEXTURE("texture/surface.jpg")(terrace), roofBase, roofPitch])
+	return STRUCT([TEXTURE("texture/surface" + str(randint(1,10)) + ".jpg")(terrace), roofBase, roofPitch])
 
 #roof vertices
 v1 = [0,0]
