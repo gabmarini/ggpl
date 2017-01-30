@@ -1,47 +1,45 @@
 from pyplasm import *
 import random
 
-def bottom():
-	c = BEZIERCURVE([[1.5,0,0],[0.5,0,0],[0.5,0,5],[0.5,0,7]])
-	domain = PROD([INTERVALS(1)(2*7), INTERVALS(2*PI)(7)])
-	domain = PROD([domain, Q(1)])
-	def bottom0(point):
-		x,y,z = point
-		r,none,q = c([x])
+def log():
+	D = PROD([PROD([INTERVALS(1)(5), INTERVALS(2*PI)(10)]), Q(1)])
+	bezCurve = BEZIERCURVE([[1.5,0,0],[0.5,0,0],[0.5,0,5],[0.5,0,7]])
 	
-		fx = COS(y) * r
-		fy = SIN(y) * r
-		return fx * z,fy * z,q
-	return MAP(bottom0)(domain)
-
-def top():
-	dom = T(1)(-PI/2.0)(PROD([INTERVALS(PI)(7), INTERVALS(2*PI)(7)]))
-	dom = PROD([dom, Q(PI)])
-
-	r = 4
-	def chioma0(point):
+	def log0(point):
 		x,y,z = point
-		fx = -r * COS(x) * COS(y)
-		fy = r * COS(x) * SIN(y)
-		fz = r * SIN(x + z)
-		return fx,fy,fz
+		radius,zero,quote = bezCurve([x])
+		mapx = COS(y) * radius
+		mapy = SIN(y) * radius
+		return mapx * z,mapy * z,quote
 
-	c = MAP(chioma0)(dom)
-	return R([2,3])(PI/2.)(c)
+	return MAP(log0)(D)
+
+def leaves():
+	D = T(1)(-PI/2)(PROD([INTERVALS(PI)(7), INTERVALS(2*PI)(7)]))
+	D = PROD([D, Q(PI)])
+	radius = 4
+	bezCurve = BEZIERCURVE([[1.5,0,0],[0.5,0,0],[0.5,0,5],[0.5,0,7]])
+
+	def leaves0(point):
+		x,y,z = point
+		mapx = -radius * COS(x) * COS(y)
+		mapy = radius * COS(x) * SIN(y)
+		mapz = radius * SIN(x + z)
+		return mapx,mapy,mapz
+
+	bezCurve = MAP(leaves0)(D)
+
+	return R([2,3])(PI/2.)(bezCurve)
 
 def render_tree():
 	zscale = random.uniform(.5, 1.)
 	xscale = random.uniform(0.45, .75)
 	yscale = xscale
-	rg = random.uniform(.1,.5)
-	rot = random.uniform(0., PI)
-	bot = MATERIAL([0.2,.15,0,.1,  0,0,0,1,  0,0,0,.1, 0,0,0,1, 1])(bottom())
-	topt = MATERIAL([.1,rg,0,.7,  0,0,0,1,  0,.1,0,1, 0,0,0,1, 10])(top())
-	#topt = MATERIAL([0,0,0,1,  0,rg,0,1,  0,.1,0,1, 0,0,0,1, 10])(top())
-
-	#topt = TEXTURE("texture/leaf.jpg")(topt)
-	#bot = TEXTURE("texture/bot_wood.jpg")(bot)
-	tree = S([1,2,3])([xscale,yscale,zscale])(R([1,2])(rot)(STRUCT([bot, T(3)(10)(topt)])))
+	randg = random.uniform(.1,.5)
+	rot = random.uniform(0., 2*PI)
+	logModel = MATERIAL([0.2,.15,0,.1,  0,0,0,1,  0,0,0,.1, 0,0,0,1, 1])(log())
+	leavesModel = MATERIAL([.1,randg,0,.7,  0,0,0,1,  0,.1,0,1, 0,0,0,1, 10])(leaves())
+	tree = S([1,2,3])([xscale,yscale,zscale])(R([1,2])(rot)(STRUCT([logModel, T(3)(10)(leavesModel)])))
 	return tree
 
-#VIEW(render_tree())
+VIEW(render_tree())
