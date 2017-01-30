@@ -49,7 +49,7 @@ def build_house_battery(n, squared = False):
 		battery.append((houseModel))
 
 	return STRUCT(battery)
-
+"""
 def build_house_battery(n, squared = False):
 
 	battery = []
@@ -71,7 +71,7 @@ def build_house_battery(n, squared = False):
 		squared.append(T([1,2])([xSize*1.2,ySize*1.2])(houseModel))
 		return STRUCT(squared)
 	return STRUCT(battery*n)
-
+"""
 def position_trees(box):
 	boxMinV,boxMaxV = box_max_min(UKPOL(S([1,2])([1.45,1.45])(box))[0])
 	treeList = []
@@ -147,18 +147,22 @@ box = MATERIAL([0,0,0,1,  0,.1,0,1,  0,.1,0,1, 0,0,0,1, 0])(box)
 border = PROD([T([1,2])([-1,-1])(OFFSET([2,2])(SKEL_1(box))),Q(2)])
 border = MATERIAL([0.53,.3,0,.1,  0,0,0,1,  0.53,.3,0,.8, 0,0,0,1, 100])(border)
 
-waterify = MATERIAL([0,.2,.6,1, 0,.2,.4,.2, 1,1,1,1, 0,0,0,1, 100])
+waterify = MATERIAL([0,.2,.6,1, 0,.2,.4,.1, 1,1,1,1, 0,0,0,1, 100])
 
 boxMinV,boxMaxV = box_max_min(UKPOL((JOIN(SKEL_1(border))))[0])
-points = [[[boxMaxV[0],boxMinV[1]], [boxMaxV[0],boxMinV[1]+1.5*i], [boxMaxV[0]-5*i,boxMinV[1]]] for i in xrange(1,16)]
+points = [[[boxMaxV[0],boxMinV[1]], [boxMaxV[0],boxMinV[1]+.75*i], [boxMaxV[0]-2.5*i,boxMinV[1]]] for i in xrange(1,32)]
+
+points2 = [[[boxMinV[0],boxMaxV[1]], [boxMinV[0],boxMaxV[1]-.75*i], [boxMinV[0]+.85*i,boxMaxV[1]]] for i in xrange(1,45)]
 
 fiumi = [MKPOL([ps,[[1,2,3]],1]) for ps in points]
+fiumi2 = [MKPOL([ps,[[1,2,3]],1]) for ps in points2]
 
 result = [waterify(T([3])([.005*i+1])(fiume)) for i,fiume in enumerate(fiumi,0)]
+result2 = [waterify(T([3])([.005*i+1])(fiume)) for i,fiume in enumerate(fiumi2,0)]
 
-base = S([1,2])([1.45,1.45])(STRUCT([box, strada, border, STRUCT(result)]))
 
-VIEW(base)
+base = S([1,2])([1.45,1.45])(STRUCT([box, strada, border, STRUCT(result + result2)]))
+
 houseBattery = R([1,2])(-PI/2.44)(build_house_battery(6))
 houseBattery2 = R([1,2])(PI/10)(build_house_battery(3))
 houseBattery3 = R([1,2])(PI/2.5)(build_house_battery(3))
@@ -180,7 +184,7 @@ T([1,2])([53,330])(houseBattery6),
 T([1,2])([120,257])(houseBattery7),
 T([1,2])([193,285])(houseBattery8),
 T([1,2])([80,235])(houseBattery9),
-T([1,2])([167,216])(houseBattery10),
+T([1,2])([168,217])(houseBattery10),
 T([1,2])([38,362])(houseBattery11)])
 
 trees = position_trees(box)
