@@ -77,27 +77,6 @@ def build_district(n, squared = False):
 
 	return STRUCT(district)
 
-
-def build_district(n, squared = False):
-	battery = []
-	for i in range(1):
-		if random.randint(0,1) == 0:
-			houseModel = CUBOID([17.79287338256836, 18.63495445251465, 9.000055313110352])
-		else:
-			houseModel  = CUBOID([16.35014533996582, 19.027542114257812, 9.0])
-		xSize = SIZE([1])(houseModel)[0]
-		ySize = SIZE([2])(houseModel)[0]
-		battery.append(BOX([1,2,3])(houseModel))
-		battery.append(T([2])([ySize*1.15]))
-	if squared:
-		squared = []
-		squared.append(houseModel)
-		squared.append(T([2])([ySize*1.2])(houseModel))
-		squared.append(T([1])([xSize*1.2])(houseModel))
-		squared.append(T([1,2])([xSize*1.2,ySize*1.2])(houseModel))
-		return STRUCT(squared)
-	return STRUCT(battery*n)
-
 def position_trees(box):
 	"""
 	position_trees is a function that given an hpc model of a box on XY plane reads 
