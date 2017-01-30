@@ -130,7 +130,6 @@ def generate_doors_special_hole_models(linesFileName, modelBuilder, height):
 	models = STRUCT(models)
 	return (models, holes)
 
-#MODIFICATO
 def texturized_floors(houseType, story, ladderHoleModel = False):
 	"""
 	texturized_floors is a function that return a list of HPC models, in particular models of the different floors that are

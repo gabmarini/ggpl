@@ -164,11 +164,11 @@ def draw_beziers():
 
 def suburban_neighborhood():
 	"""
-	suburban_neighborhood is a function that generate an HPC model of the entire neighborhood,
-	although it won't take any argument it's capable of generating a different scenario
-	every time it is launched. Due to the randomization used it can generate hundreds
-	of different trees and theoretically thousands of different house (starting 
-	from two different type of house).
+	suburban_neighborhood is a function that generate an HPC model of the entire 
+	neighborhood, although it won't take any argument it's capable of generating a 
+	different scenario every time it is launched. Due to the randomization used 
+	it can generate hundreds of different trees and theoretically thousands of 
+	different house (starting from two different house's base type).
 	It generate districts, roads, sidewalks, trees, rivers and the plastic box
 	and borders.
 	@return neighborhood: the HPC model of the neighborhood.
@@ -197,7 +197,7 @@ def suburban_neighborhood():
 
 	#assebling the base
 	base = S([1,2])([1.45,1.45])(STRUCT([box, roads, border, STRUCT(riversModel + riversModel2)]))
-	
+
 	#building every single district
 	district = R([1,2])(-PI/2.44)(build_district(6))
 	district2 = R([1,2])(PI/10)(build_district(3))
