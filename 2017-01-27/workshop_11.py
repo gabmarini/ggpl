@@ -90,7 +90,7 @@ def chunks(l, n):
     """Yield successive n-sized chunks from l."""
     for i in range(0, len(l), n):
         yield l[i:i + n+1]
-
+"""
 def draw_pool():
 	points = []
 	bezierList = []
@@ -98,7 +98,7 @@ def draw_pool():
 		reader = csv.reader(pool, delimiter=",")
 		for row in reader:
 			points.append([float(row[2]), float(row[3])])
-	puntinuovi = list(chunks(points, 4))
+	puntinuovi = list(chunks(points, 8))
 	puntinuovi[-1] = puntinuovi[-1] + [puntinuovi[0][0]]
 	curve2 = []
 
@@ -107,7 +107,7 @@ def draw_pool():
 		curve2.append(curva)
 
 	return STRUCT(curve2)
-
+"""
 
 def draw_bezier():
 	points = []
@@ -147,21 +147,18 @@ box = MATERIAL([0,0,0,1,  0,.1,0,1,  0,.1,0,1, 0,0,0,1, 0])(box)
 border = PROD([T([1,2])([-1,-1])(OFFSET([2,2])(SKEL_1(box))),Q(2)])
 border = MATERIAL([0.53,.3,0,.1,  0,0,0,1,  0.53,.3,0,.8, 0,0,0,1, 100])(border)
 
+waterify = MATERIAL([0,.2,.6,1, 0,.2,.4,.2, 1,1,1,1, 0,0,0,1, 100])
 
-"""FARE LAGHETTO PICCOLO E POI ALLARGARLO mano mano, mettendo in pila gli strati mano a mano, in modo da fare vedere
-il centro più scuro e il bordo più chiaro"""
-waterify = MATERIAL([0,.2,.6,1, 0,.2,.4,.3, 1,1,1,1, 0,0,0,1, 100])
+boxMinV,boxMaxV = box_max_min(UKPOL((JOIN(SKEL_1(border))))[0])
+points = [[[boxMaxV[0],boxMinV[1]], [boxMaxV[0],boxMinV[1]+1.5*i], [boxMaxV[0]-5*i,boxMinV[1]]] for i in xrange(1,16)]
 
-pool = draw_pool()
-water = waterify(T([3])([.1])(JOIN(pool)))
-sand = T([1,2])([-1.5,-1.5])(OFFSET([3,3])(pool))
-sand = MATERIAL([.2,.2,.2,3, 0,0,0,1, .2,.2,.2,.2, 0,0,0,1, 10])(JOIN(sand))
-sand = T([3])(.05)(sand)
-puddle = STRUCT([water, sand])
-VIEW(puddle)
+fiumi = [MKPOL([ps,[[1,2,3]],1]) for ps in points]
 
-base = S([1,2])([1.45,1.45])(STRUCT([box, strada, border, puddle]))
+result = [waterify(T([3])([.005*i+1])(fiume)) for i,fiume in enumerate(fiumi,0)]
 
+base = S([1,2])([1.45,1.45])(STRUCT([box, strada, border, STRUCT(result)]))
+
+VIEW(base)
 houseBattery = R([1,2])(-PI/2.44)(build_house_battery(6))
 houseBattery2 = R([1,2])(PI/10)(build_house_battery(3))
 houseBattery3 = R([1,2])(PI/2.5)(build_house_battery(3))
@@ -171,6 +168,9 @@ houseBattery6 = R([1,2])(-PI+PI/5.)(build_house_battery(4))
 houseBattery7 = R([1,2])(PI/5.)(build_house_battery(5))
 houseBattery8 = R([1,2])(PI/8.)(build_house_battery(0,True))
 houseBattery9 = R([1,2])(-PI/2.60)(build_house_battery(3))
+houseBattery10 = R([1,2])(-PI/2.44)(build_house_battery(6))
+houseBattery11 = R([1,2])(-PI/3.5)(build_house_battery(3))
+
 modello = STRUCT([base, T([1,2])([150,262])(houseBattery), 
 T([1,2])([245,300])(houseBattery2), 
 T([1,2])([204,353])(houseBattery3), 
@@ -179,8 +179,17 @@ T([1,2])([170,285])(houseBattery5),
 T([1,2])([53,330])(houseBattery6),
 T([1,2])([120,257])(houseBattery7),
 T([1,2])([193,285])(houseBattery8),
-T([1,2])([80,235])(houseBattery9)])
+T([1,2])([80,235])(houseBattery9),
+T([1,2])([167,216])(houseBattery10),
+T([1,2])([38,362])(houseBattery11)])
 
 trees = position_trees(box)
 
-VIEW(STRUCT([modello, trees]))
+
+final = STRUCT([modello, trees])
+
+
+boxMinV,boxMaxV = box_max_min(UKPOL(S([1,2])([1.45,1.45])(JOIN(SKEL_1(border))))[0])
+final = T([1,2])([-boxMinV[0], -boxMinV[1]])(final)
+
+VIEW(final)
